@@ -65,9 +65,17 @@ def product_list_api(request):
 @api_view(['POST'])
 def register_order(request):
     order = request.data
-    if 'products' in order.keys():
+    if not 'products' in order.keys():
+        content = {'products: Обязательное поле'}
+    else:
         order_elements = order['products']
-        if isinstance(order_elements, list) and order_elements:
+        if order_elements is None:
+            content = {'products: Это поле не может быть пустым'}
+        elif not isinstance(order_elements, list):
+            content = {'products: Ожидался list со значениями, но был получен "str"'}
+        elif len(order_elements) == 0:
+            content = {'products: Этот список не может быть пустым'}
+        else:
             name = order['firstname']
             lastname = order['lastname']
             phone = order['phonenumber']
@@ -79,5 +87,4 @@ def register_order(request):
                 quantity = element['quantity']
                 OrderElements.objects.create(order=order_obj, quantity=quantity, product=product)
             return Response(order)
-    content = {'error': 'products key not presented or not list'}
     return Response(content, status=status.HTTP_200_OK)
