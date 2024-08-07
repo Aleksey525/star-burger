@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.templatetags.static import static
 from .models import Order, OrderElements
+from rest_framework import status
 import json
 
 
@@ -64,14 +65,19 @@ def product_list_api(request):
 @api_view(['POST'])
 def register_order(request):
     order = request.data
-    name = order['firstname']
-    lastname = order['lastname']
-    phone = order['phonenumber']
-    address = order['address']
-    order_elements = order['products']
-    order_obj = Order.objects.create(name=name, last_name=lastname, phone=phone, address=address)
-    for element in order_elements:
-        product = Product.objects.get(pk=element['product'])
-        quantity = element['quantity']
-        OrderElements.objects.create(order=order_obj, quantity=quantity, product=product)
-    return Response(order)
+    if 'products' in order.keys():
+        order_elements = order['products']
+        if isinstance(order_elements, list) and order_elements:
+            name = order['firstname']
+            lastname = order['lastname']
+            phone = order['phonenumber']
+            address = order['address']
+            order_obj = Order.objects.create(name=name, last_name=lastname, phone=phone, address=address)
+
+            for element in order_elements:
+                product = Product.objects.get(pk=element['product'])
+                quantity = element['quantity']
+                OrderElements.objects.create(order=order_obj, quantity=quantity, product=product)
+            return Response(order)
+    content = {'error': 'products key not presented or not list'}
+    return Response(content, status=status.HTTP_200_OK)
