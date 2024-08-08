@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.templatetags.static import static
 from .models import Order, OrderElements
 from rest_framework import status
+import re
 import json
 
 
@@ -64,24 +65,36 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
+    phone_pattern = r'^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$'
     order = request.data
     if not 'products' in order.keys():
         content = {'products: Обязательное поле'}
+    elif not ('firstname' and 'lastname' and 'phonenumber' and 'address') in order.keys():
+        content = {'firstname, lastname, phonenumber, address: Обязательное поле'}
     else:
         order_elements = order['products']
+        name = order['firstname']
+        lastname = order['lastname']
+        phone = order['phonenumber']
+        address = order['address']
         if order_elements is None:
             content = {'products: Это поле не может быть пустым'}
+        elif not name and not lastname and not phone and not address:
+            content = {'firstname, lastname, phonenumber, address: Это поле не может быть пустым'}
+        elif name is None:
+            content = {'firstname: Это поле не может быть пустым'}
+        elif not phone:
+            content = {'phonenumber: Это поле не может быть пустым'}
+        elif not re.match(phone_pattern, phone):
+            content = {'phonenumber: Введен некорректный номер телефона'}
+        elif not isinstance(name, str):
+            content = {'firstname: Not a valid string'}
         elif not isinstance(order_elements, list):
             content = {'products: Ожидался list со значениями, но был получен "str"'}
         elif len(order_elements) == 0:
             content = {'products: Этот список не может быть пустым'}
         else:
-            name = order['firstname']
-            lastname = order['lastname']
-            phone = order['phonenumber']
-            address = order['address']
             order_obj = Order.objects.create(name=name, last_name=lastname, phone=phone, address=address)
-
             for element in order_elements:
                 product = Product.objects.get(pk=element['product'])
                 quantity = element['quantity']
