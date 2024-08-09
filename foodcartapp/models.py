@@ -126,9 +126,9 @@ class RestaurantMenuItem(models.Model):
 
 
 class Order(models.Model):
-    name = models.CharField(verbose_name='Имя', max_length=50)
-    last_name = models.CharField(verbose_name='Фамилия', max_length=50)
-    phone = PhoneNumberField(verbose_name='Мобильный телефон', db_index=True)
+    firstname = models.CharField(verbose_name='Имя', max_length=50)
+    lastname = models.CharField(verbose_name='Фамилия', max_length=50)
+    phonenumber = PhoneNumberField(verbose_name='Мобильный телефон', db_index=True)
     address = models.CharField(verbose_name='адрес', max_length=50)
 
 

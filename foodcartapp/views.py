@@ -73,28 +73,28 @@ def register_order(request):
         content = {'firstname, lastname, phonenumber, address: Обязательное поле'}
     else:
         order_elements = order['products']
-        name = order['firstname']
+        firstname = order['firstname']
         lastname = order['lastname']
-        phone = order['phonenumber']
+        phonenumber = order['phonenumber']
         address = order['address']
         if order_elements is None:
             content = {'products: Это поле не может быть пустым'}
-        elif not name and not lastname and not phone and not address:
+        elif not firstname and not lastname and not phonenumber and not address:
             content = {'firstname, lastname, phonenumber, address: Это поле не может быть пустым'}
-        elif name is None:
+        elif firstname is None:
             content = {'firstname: Это поле не может быть пустым'}
-        elif not phone:
+        elif not phonenumber:
             content = {'phonenumber: Это поле не может быть пустым'}
-        elif not re.match(phone_pattern, phone):
+        elif not re.match(phone_pattern, phonenumber):
             content = {'phonenumber: Введен некорректный номер телефона'}
-        elif not isinstance(name, str):
+        elif not isinstance(firstname, str):
             content = {'firstname: Not a valid string'}
         elif not isinstance(order_elements, list):
             content = {'products: Ожидался list со значениями, но был получен "str"'}
         elif len(order_elements) == 0:
             content = {'products: Этот список не может быть пустым'}
         else:
-            order_obj = Order.objects.create(name=name, last_name=lastname, phone=phone, address=address)
+            order_obj = Order.objects.create(firstname=firstname, lastname=lastname, phonenumber=phonenumber, address=address)
             for element in order_elements:
                 product = Product.objects.get(pk=element['product'])
                 quantity = element['quantity']
