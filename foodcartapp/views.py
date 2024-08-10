@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 from rest_framework.serializers import ListField
@@ -17,10 +18,10 @@ class OrderElementsSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = ListField(child=OrderElementsSerializer())
+    products = ListField(child=OrderElementsSerializer(), write_only=True)
     class Meta:
         model = Order
-        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+        fields = ['id', 'firstname', 'lastname', 'phonenumber', 'address', 'products']
     def validate_products(self, value):
         if len(value) == 0:
             raise ValidationError('Этот список не может быть пустым')
@@ -96,7 +97,9 @@ def register_order(request):
         product = Product.objects.get(name=element['product'])
         quantity = element['quantity']
         OrderElements.objects.create(order=order_obj, quantity=quantity, product=product)
-    return Response(serializer.data)
+
+    order_serializer = OrderSerializer(order_obj)
+    return Response(order_serializer.data)
 
 
 
