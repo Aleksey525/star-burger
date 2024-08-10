@@ -131,13 +131,12 @@ class Order(models.Model):
     phonenumber = PhoneNumberField(verbose_name='Мобильный телефон', db_index=True)
     address = models.CharField(verbose_name='адрес', max_length=50)
 
-
     class Meta:
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
 
     def __str__(self):
-        return f'{self.name}, {self.address}'
+        return f'{self.firstname}, {self.address}'
 
 
 class OrderElements(models.Model):
@@ -145,13 +144,12 @@ class OrderElements(models.Model):
     order = models.ForeignKey(Order, verbose_name='Заказ', related_name='elements', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name='Количество')
 
-
     class Meta:
         verbose_name = 'элемент заказа'
         verbose_name_plural = 'элементы заказа'
 
     def __str__(self):
-        return f'{self.order.name}, {self.product.name}'
+        return f'{self.order.firstname}, {self.product.name}'
 
 
 

@@ -1,14 +1,30 @@
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ValidationError
+from rest_framework.serializers import ListField
 from django.templatetags.static import static
 from .models import Order, OrderElements
-from rest_framework import status
-import re
-import json
-
-
 from .models import Product
+
+
+
+class OrderElementsSerializer(ModelSerializer):
+    class Meta:
+        model = OrderElements
+        fields = ['product', 'quantity']
+
+
+class OrderSerializer(ModelSerializer):
+    products = ListField(child=OrderElementsSerializer())
+    class Meta:
+        model = Order
+        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+    def validate_products(self, value):
+        if len(value) == 0:
+            raise ValidationError('Этот список не может быть пустым')
+        return value
 
 
 def banners_list_api(request):
@@ -65,39 +81,22 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
-    phone_pattern = r'^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$'
-    order = request.data
-    if not 'products' in order.keys():
-        content = {'products: Обязательное поле'}
-    elif not ('firstname' and 'lastname' and 'phonenumber' and 'address') in order.keys():
-        content = {'firstname, lastname, phonenumber, address: Обязательное поле'}
-    else:
-        order_elements = order['products']
-        firstname = order['firstname']
-        lastname = order['lastname']
-        phonenumber = order['phonenumber']
-        address = order['address']
-        if order_elements is None:
-            content = {'products: Это поле не может быть пустым'}
-        elif not firstname and not lastname and not phonenumber and not address:
-            content = {'firstname, lastname, phonenumber, address: Это поле не может быть пустым'}
-        elif firstname is None:
-            content = {'firstname: Это поле не может быть пустым'}
-        elif not phonenumber:
-            content = {'phonenumber: Это поле не может быть пустым'}
-        elif not re.match(phone_pattern, phonenumber):
-            content = {'phonenumber: Введен некорректный номер телефона'}
-        elif not isinstance(firstname, str):
-            content = {'firstname: Not a valid string'}
-        elif not isinstance(order_elements, list):
-            content = {'products: Ожидался list со значениями, но был получен "str"'}
-        elif len(order_elements) == 0:
-            content = {'products: Этот список не может быть пустым'}
-        else:
-            order_obj = Order.objects.create(firstname=firstname, lastname=lastname, phonenumber=phonenumber, address=address)
-            for element in order_elements:
-                product = Product.objects.get(pk=element['product'])
-                quantity = element['quantity']
-                OrderElements.objects.create(order=order_obj, quantity=quantity, product=product)
-            return Response(order)
-    return Response(content, status=status.HTTP_200_OK)
+    serializer = OrderSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    order_obj = Order.objects.create(
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        phonenumber=serializer.validated_data['phonenumber'],
+        address=serializer.validated_data['address'])
+
+    product_fields = serializer.validated_data['products']
+
+    for element in product_fields:
+        product = Product.objects.get(name=element['product'])
+        quantity = element['quantity']
+        OrderElements.objects.create(order=order_obj, quantity=quantity, product=product)
+    return Response(serializer.data)
+
+
+
