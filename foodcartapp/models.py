@@ -152,6 +152,7 @@ class OrderElements(models.Model):
     product = models.ForeignKey(Product, verbose_name='Продукт', related_name='elements', on_delete=models.CASCADE)
     order = models.ForeignKey(Order, verbose_name='Заказ', related_name='elements', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name='Количество')
+    price = models.DecimalField(verbose_name='цена', max_digits=8, decimal_places=2, validators=[MinValueValidator(0)], null=True)
 
     class Meta:
         verbose_name = 'элемент заказа'
@@ -159,6 +160,8 @@ class OrderElements(models.Model):
 
     def __str__(self):
         return f'{self.order.firstname}, {self.product.name}'
+
+
 
 
 
