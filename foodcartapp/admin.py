@@ -131,12 +131,27 @@ class OrderAdmin(admin.ModelAdmin):
                 instance.price = instance.product.price * instance.quantity
             instance.save()
 
+    # def response_change(self, request, obj):
+    #     if url_has_allowed_host_and_scheme(request.GET.get('next'), None):
+    #         url = iri_to_uri(request.GET.get('next'))
+    #         return redirect(url)
+    #     else:
+    #         raise
+
     def response_change(self, request, obj):
-        if url_has_allowed_host_and_scheme(request.GET['next'], None):
-            url = iri_to_uri(request.GET['next'])
-            return redirect(url)
+        # Call the parent class's response_change method
+        res = super().response_change(request, obj)
+
+        # Safely retrieve the 'next' parameter using get method
+        next_url = request.GET.get('next')
+
+        # If 'next' is present, redirect to that URL
+        if next_url:
+            return HttpResponseRedirect(next_url)
+
+        # Otherwise, return the default response
         else:
-            raise
+            return res
 
 
 @admin.register(OrderElements)
