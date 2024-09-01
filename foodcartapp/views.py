@@ -8,6 +8,7 @@ from rest_framework.serializers import ListField
 from django.templatetags.static import static
 from .models import Order, OrderElements
 from .models import Product
+from django.db import transaction
 
 
 
@@ -79,7 +80,7 @@ def product_list_api(request):
         'indent': 4,
     })
 
-
+@transaction.atomic
 @api_view(['POST'])
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
