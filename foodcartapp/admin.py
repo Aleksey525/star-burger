@@ -1,7 +1,11 @@
 from django.contrib import admin
+from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.encoding import iri_to_uri
+from django.shortcuts import redirect
 
 from .models import Order, OrderElements
 from .models import Product
@@ -126,6 +130,13 @@ class OrderAdmin(admin.ModelAdmin):
             if not instance.price:
                 instance.price = instance.product.price * instance.quantity
             instance.save()
+
+    def response_change(self, request, obj):
+        if url_has_allowed_host_and_scheme(request.GET['next'], None):
+            url = iri_to_uri(request.GET['next'])
+            return redirect(url)
+        else:
+            raise
 
 
 @admin.register(OrderElements)
