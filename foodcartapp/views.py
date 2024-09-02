@@ -5,9 +5,10 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 from rest_framework.serializers import ListField
+from rest_framework import status
 from django.templatetags.static import static
 from .models import Order, OrderElements
-from .models import Product
+from .models import Product, RestaurantMenuItem
 from django.db import transaction
 
 
@@ -99,8 +100,8 @@ def register_order(request):
         quantity = element['quantity']
         OrderElements.objects.create(order=order_obj, quantity=quantity, product=product)
 
-    order_serializer = OrderSerializer(order_obj)
-    return Response(order_serializer.data)
+    order_serializer = OrderSerializer(order_obj).data
+    return Response({'order': order_serializer}, status=status.HTTP_201_CREATED)
 
 
 
