@@ -38,9 +38,14 @@
         <td>{{ item.comment }}</td>
         <td>
           {% if item.restaurants %}
-            {{ item.restaurants|join:", " }}
-          {% else %}
-            Нет доступных ресторанов
+            <details>
+              <summary>Может быть приготовлен ресторанами:</summary>
+              <ul>
+                {% for restaurant in item.restaurants %}
+                  <li>{{ restaurant }}</li>
+                {% endfor %}
+              </ul>
+            </details>
           {% endif %}
         </td>
         <td><a href="{% url 'admin:foodcartapp_order_change' item.pk %}?next={{ request.get_full_path|urlencode }}">Редактировать</a></td>
