@@ -166,6 +166,8 @@ class Order(models.Model):
     delivered_at = models.DateTimeField(verbose_name='Дата доставки', null=True, blank=True, db_index=True)
     payment_method = models.CharField(verbose_name='Способ оплаты', max_length=20, choices=PAYMENT_METODS,
                                       default=CASHLESS, blank=True, db_index=True)
+    restaurant = models.ForeignKey(Restaurant, verbose_name='Ресторан', related_name='orders', blank=True, null=True,
+                                   on_delete=models.CASCADE)
 
 
     objects = OrderQuerySet.as_manager()
