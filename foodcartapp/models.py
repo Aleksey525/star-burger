@@ -145,6 +145,14 @@ class Order(models.Model):
         (AT_COURIER, 'Передан курьеру'),
         (DELIVERED, 'Доставлен'),
     ]
+
+    IN_CASH = 'Наличными'
+    CASHLESS = 'Электронно'
+    PAYMENT_METODS = [
+        (IN_CASH, 'Наличными'),
+        (CASHLESS, 'Электронно'),
+    ]
+
     order_status = models.CharField(verbose_name='Статус заказа', max_length=50, choices=ORDER_STATUSES,
                                     default=UNPROCESSED, db_index=True, blank=True)
     firstname = models.CharField(verbose_name='Имя', max_length=50)
@@ -152,9 +160,12 @@ class Order(models.Model):
     phonenumber = PhoneNumberField(verbose_name='Мобильный телефон', db_index=True)
     address = models.CharField(verbose_name='адрес', max_length=50)
     comment = models.TextField(verbose_name='Комментарий', max_length=200, blank=True)
-    registrated_at = models.DateTimeField(verbose_name='Дата создания', default=timezone.now, blank=True, db_index=True)
+    registrated_at = models.DateTimeField(verbose_name='Дата создания',
+                                          default=timezone.now, blank=True, db_index=True)
     called_at = models.DateTimeField(verbose_name='Дата звонка', null=True, blank=True, db_index=True)
     delivered_at = models.DateTimeField(verbose_name='Дата доставки', null=True, blank=True, db_index=True)
+    payment_method = models.CharField(verbose_name='Способ оплаты', max_length=20, choices=PAYMENT_METODS,
+                                      default=CASHLESS, blank=True, db_index=True)
 
 
     objects = OrderQuerySet.as_manager()
