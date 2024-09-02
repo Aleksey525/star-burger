@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import F, Sum
 
@@ -151,6 +152,9 @@ class Order(models.Model):
     phonenumber = PhoneNumberField(verbose_name='Мобильный телефон', db_index=True)
     address = models.CharField(verbose_name='адрес', max_length=50)
     comment = models.TextField(verbose_name='Комментарий', max_length=200, blank=True)
+    registrated_at = models.DateTimeField(verbose_name='Дата создания', default=timezone.now, blank=True, db_index=True)
+    called_at = models.DateTimeField(verbose_name='Дата звонка', null=True, blank=True, db_index=True)
+    delivered_at = models.DateTimeField(verbose_name='Дата доставки', null=True, blank=True, db_index=True)
 
 
     objects = OrderQuerySet.as_manager()
