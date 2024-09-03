@@ -93,16 +93,27 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     order_items = Order.objects.final_price().prefetch_related(
-        'elements__product__menu_items__restaurant'
-    ).all()
+        'elements__product__menu_items__restaurant').all()
 
     for order in order_items:
-        restaurants = set()
+        order_restaurants = set()
+        all_products_available = True
         for order_product in order.elements.all():
+            product_restaurants = set()
             for menu_item in order_product.product.menu_items.all():
                 if menu_item.availability:
-                    restaurants.add(menu_item.restaurant.name)
-        order.restaurants = list(restaurants)
+                    product_restaurants.add(menu_item.restaurant.name)
+            if not product_restaurants:
+                all_products_available = False
+                break
+            order_restaurants.update(product_restaurants)
+        if all_products_available:
+            common_restaurants = set(order_restaurants)
+            for product_restaurants in [set(
+                menu_item.restaurant.name for menu_item in order_product.product.menu_items.all() if
+                menu_item.availability) for order_product in order.elements.all()]:
+                common_restaurants.intersection_update(product_restaurants)
+            order.restaurants = common_restaurants
 
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
