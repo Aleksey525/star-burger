@@ -118,7 +118,7 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     order_items = Order.objects.final_price().prefetch_related(
-        'elements__product__menu_items__restaurant').all()
+        'elements__product__menu_items__restaurant', 'locations').all()
 
     for order in order_items:
         restaurant_dist = {}
@@ -136,25 +136,33 @@ def view_orders(request):
         if all_products_available:
             common_restaurants = set.intersection(*product_restaurants_sets)
             for restaurant_name in common_restaurants:
-                try:
-                    YANDEX_API_KEY = settings.YANDEX_API_KEY
-                    restaurant_coords = fetch_coordinates(YANDEX_API_KEY , restaurant_name)
-                    delivery_coords = fetch_coordinates(YANDEX_API_KEY, order.address)
-                    if restaurant_coords and delivery_coords:
-                        distance = calculate_distance(restaurant_coords, delivery_coords)
-                        restaurant_dist[restaurant_name] = distance
-                except Exception as error:
-                    print(f"Ошибка получения координат для {restaurant_name}: {error}")
+
+                distance_record, created = order.locations.get_or_create(
+                    restaurant_name=restaurant_name,
+                    address=order.address,
+                    defaults={'distance': 0.0},
+                )
+                if created:
+                    try:
+                        YANDEX_API_KEY = settings.YANDEX_API_KEY
+                        restaurant_coords = fetch_coordinates(YANDEX_API_KEY, restaurant_name)
+                        delivery_coords = fetch_coordinates(YANDEX_API_KEY, order.address)
+                        if restaurant_coords and delivery_coords:
+                            distance_record.lat = delivery_coords[0]
+                            distance_record.lon = delivery_coords[1]
+                            distance = geodesic(restaurant_coords, delivery_coords).kilometers
+                            distance_record.distance = distance
+                            distance_record.save()
+                    except Exception as error:
+                        print(f"Ошибка при получении координат для {restaurant_name}: {error}")
+
+                restaurant_dist[restaurant_name] = distance_record.distance
 
             order.restaurants = common_restaurants
 
         if restaurant_dist:
-            closest_restaurant = min(restaurant_dist, key=restaurant_dist.get)
-            order.closest_restaurant = closest_restaurant
-            order.closest_distance = restaurant_dist[closest_restaurant]
-        else:
-            order.closest_restaurant = None
-            order.closest_distance = None
+            closest_restaurants = restaurant_dist
+            order.closest_restaurants = closest_restaurants
 
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,

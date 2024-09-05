@@ -44,9 +44,9 @@
               <details>
                 <summary>Может быть приготовлен ресторанами:</summary>
                 <ul>
-                  {% for restaurant in item.restaurants %}
-                    {% if item.closest_distance %}
-                     <li>{{ restaurant }} - {{ item.closest_distance|floatformat:2}} км</li>
+                  {% for restaurant, distance in item.closest_restaurants.items %}
+                    {% if restaurant and distance %}
+                     <li>{{ restaurant }} - {{ distance|floatformat:2}} км</li>
                   {% else %}
                       Невозможно рассчитать расстояние
                     {% endif %}
