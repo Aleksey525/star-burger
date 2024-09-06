@@ -162,7 +162,9 @@ def view_orders(request):
 
         if restaurant_dist:
             closest_restaurants = restaurant_dist
-            order.closest_restaurants = closest_restaurants
+            sorted_closest_restaurants ={restaurant: distance for restaurant, distance
+                                         in sorted(closest_restaurants.items(), key=lambda item: item[1])}
+            order.closest_restaurants = sorted_closest_restaurants
 
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
