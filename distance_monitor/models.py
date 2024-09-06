@@ -13,5 +13,9 @@ class Location(models.Model):
     distance = models.FloatField(verbose_name='Расстояние', default=0.0)
     last_updated = models.DateTimeField(verbose_name='Дата запроса к геокодеру', default=timezone.now)
 
+    class Meta:
+        verbose_name = 'локация'
+        verbose_name_plural = 'локации'
+
     def __str__(self):
         return self.address
