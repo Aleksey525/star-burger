@@ -3,15 +3,16 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-import requests
-
-
-from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
-from geopy.distance import geodesic
 from django.conf import settings
+
+import requests
+from geopy.distance import geodesic
+
+from foodcartapp.models import Product
+from foodcartapp.models import Restaurant
+from foodcartapp.models import Order
 
 
 class Login(forms.Form):
@@ -84,10 +85,6 @@ def fetch_coordinates(apikey, address):
     return lat, lon
 
 
-def calculate_distance(restaurant_coords, delivery_coords):
-    return geodesic(restaurant_coords, delivery_coords).kilometers
-
-
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_products(request):
     restaurants = list(Restaurant.objects.order_by('name'))
@@ -142,6 +139,7 @@ def view_orders(request):
                     address=order.address,
                     defaults={'distance': 0.0},
                 )
+
                 if created:
                     try:
                         YANDEX_API_KEY = settings.YANDEX_API_KEY

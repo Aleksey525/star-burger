@@ -1,16 +1,17 @@
+from django.db import transaction
 from django.http import JsonResponse
+from django.templatetags.static import static
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 from rest_framework.serializers import ListField
 from rest_framework import status
-from django.templatetags.static import static
-from .models import Order, OrderElements
-from .models import Product, RestaurantMenuItem
-from django.db import transaction
 
+from .models import Order
+from .models import OrderElements
+from .models import Product
 
 
 class OrderElementsSerializer(ModelSerializer):

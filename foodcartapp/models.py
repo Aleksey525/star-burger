@@ -1,8 +1,9 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils import timezone
-from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import F, Sum
+
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
@@ -169,9 +170,7 @@ class Order(models.Model):
     restaurant = models.ForeignKey(Restaurant, verbose_name='Ресторан', related_name='orders', blank=True, null=True,
                                    on_delete=models.CASCADE)
 
-
     objects = OrderQuerySet.as_manager()
-
 
     class Meta:
         verbose_name = 'заказ'
