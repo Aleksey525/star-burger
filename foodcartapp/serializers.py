@@ -19,7 +19,4 @@ class OrderSerializer(ModelSerializer):
         model = Order
         fields = ['id', 'firstname', 'lastname', 'phonenumber', 'address', 'products']
 
-    def validate_products(self, value):
-        if not value:
-            raise ValidationError('Этот список не может быть пустым')
-        return value
+
