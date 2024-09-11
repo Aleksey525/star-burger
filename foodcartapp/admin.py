@@ -118,6 +118,8 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
+    readonly_fields = ['created_at']
+    list_display = ['firstname', 'lastname', 'created_at']
     inlines = [
         OrderElementsInline
     ]

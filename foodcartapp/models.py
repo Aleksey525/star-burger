@@ -162,7 +162,7 @@ class Order(models.Model):
     address = models.CharField(verbose_name='адрес', max_length=50)
     comment = models.TextField(verbose_name='Комментарий', max_length=200, blank=True)
     created_at = models.DateTimeField(verbose_name='Дата и время создания',
-                                          default=timezone.now, blank=True, db_index=True)
+                                      auto_now_add=True, blank=True, db_index=True)
     called_at = models.DateTimeField(verbose_name='Дата звонка', null=True, blank=True, db_index=True)
     delivered_at = models.DateTimeField(verbose_name='Дата доставки', null=True, blank=True, db_index=True)
     payment_method = models.CharField(verbose_name='Способ оплаты', max_length=20, choices=PAYMENT_METODS,
