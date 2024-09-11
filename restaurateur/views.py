@@ -7,12 +7,13 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 
-import requests
 from geopy.distance import geodesic
 
+from distance_monitor.models import Location
 from foodcartapp.models import Product
 from foodcartapp.models import Restaurant
 from foodcartapp.models import Order
+from foodcartapp.utils import get_restaurants
 
 
 class Login(forms.Form):
@@ -67,24 +68,6 @@ def is_manager(user):
     return user.is_staff  # FIXME replace with specific permission
 
 
-def fetch_coordinates(apikey, address):
-    base_url = "https://geocode-maps.yandex.ru/1.x"
-    response = requests.get(base_url, params={
-        "geocode": address,
-        "apikey": apikey,
-        "format": "json",
-    })
-    response.raise_for_status()
-    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
-
-    if not found_places:
-        return None
-
-    most_relevant = found_places[0]
-    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
-    return lat, lon
-
-
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_products(request):
     restaurants = list(Restaurant.objects.order_by('name'))
@@ -115,48 +98,21 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     order_items = Order.objects.final_price().prefetch_related(
-        'elements__product__menu_items__restaurant', 'locations').all()
+        'elements__product__menu_items__restaurant').all()
 
     for order in order_items:
         restaurant_dist = {}
-        all_products_available = True
-        product_restaurants_sets = []
-        for order_product in order.elements.all():
-            product_restaurants = set()
-            for menu_item in order_product.product.menu_items.all():
-                if menu_item.availability:
-                    product_restaurants.add(menu_item.restaurant.name)
-            if not product_restaurants:
-                all_products_available = False
-                break
-            product_restaurants_sets.append(product_restaurants)
-        if all_products_available:
-            common_restaurants = set.intersection(*product_restaurants_sets)
-            for restaurant_name in common_restaurants:
+        common_restaurants = get_restaurants(order)
+        delivery_address_location = Location.objects.get(address=order.address)
+        delivery_coords = (delivery_address_location.lat, delivery_address_location.lon)
+        for restaurant_name in common_restaurants:
+            restaurant_location = Location.objects.get(address=restaurant_name)
+            restaurant_coords = (restaurant_location.lat, restaurant_location.lon)
+            distance = geodesic(restaurant_coords, delivery_coords).kilometers
 
-                distance_record, created = order.locations.get_or_create(
-                    restaurant_name=restaurant_name,
-                    address=order.address,
-                    defaults={'distance': 0.0},
-                )
+            restaurant_dist[restaurant_name] = distance
 
-                if created:
-                    try:
-                        YANDEX_API_KEY = settings.YANDEX_API_KEY
-                        restaurant_coords = fetch_coordinates(YANDEX_API_KEY, restaurant_name)
-                        delivery_coords = fetch_coordinates(YANDEX_API_KEY, order.address)
-                        if restaurant_coords and delivery_coords:
-                            distance_record.lat = delivery_coords[0]
-                            distance_record.lon = delivery_coords[1]
-                            distance = geodesic(restaurant_coords, delivery_coords).kilometers
-                            distance_record.distance = distance
-                            distance_record.save()
-                    except Exception as error:
-                        print(f"Ошибка при получении координат для {restaurant_name}: {error}")
-
-                restaurant_dist[restaurant_name] = distance_record.distance
-
-            order.restaurants = common_restaurants
+        order.restaurants = common_restaurants
 
         if restaurant_dist:
             closest_restaurants = restaurant_dist
