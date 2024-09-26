@@ -9,14 +9,14 @@ env = Env()
 env.read_env()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = '/opt/star-burger/staticfiles/'
 
 
 SECRET_KEY = env('SECRET_KEY')
-DEBUG = env.bool('DEBUG', False)
+DEBUG = env.bool('DEBUG', True)
 YANDEX_API_KEY = env('YANDEX_API_KEY')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = ['87.228.27.132']
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
@@ -42,7 +42,16 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
+
+ROLLBAR = {
+    'access_token': env('ROLLBAR_PROJECT_TOKEN'),
+    'environment': 'development' if DEBUG else 'production',
+    'code_version': '1.0',
+    'root': 'opt/star-burger',
+    'patch_debugview': False,
+}
 
 ROOT_URLCONF = 'star_burger.urls'
 
