@@ -59,8 +59,13 @@ pip install -r requirements.txt
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 ```
 
-Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
+Установите Postgresql. Определите переменную окружения `DATABASE_URL`.
+В ранее созданный `.env` в каталоге `star_burger/` положить такой код:
+```sh
+DATABASE_URL=postgres://user:password@host:port/dbname
+```
 
+Запустить миграции:
 ```sh
 python manage.py migrate
 ```
@@ -148,6 +153,7 @@ Parcel будет следить за файлами в каталоге `bundle
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `YANDEX_API_KEY` — [Api-ключ для Яндекс Геокодера](https://developer.tech.yandex.ru/services)
+- `DATABASE_URL` — URL базы данных `postgres://user:password@host:port/dbname`
 
 ## Цели проекта
 
