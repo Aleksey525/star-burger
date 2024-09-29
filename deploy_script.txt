@@ -1,0 +1,69 @@
+#!/bin/bash
+
+REPO_URL=' '
+DEPLOY_DIR=' '
+BRANCH=' '
+PYTHON_VERSION=' '
+VIRTUALENV_DIR=' '
+REVISION_HASH=$(git rev-parse HEAD)
+ROLLBAR_USERNAME=' '
+POST_SERVER_ACCESS_TOKEN=' '
+
+if [ -d "$DEPLOY_DIR" ];
+then
+  echo "Директория деплоя существует, обновляем."
+  cd "$DEPLOY_DIR"
+  git fetch --all
+  git reset --hard origin/$BRANCH
+  echo "Репозиторий обновлен."
+else
+  echo "Директория деплоя не существует, клонируем репозиторий."
+  git clone "$REPO_URL" "$DEPLOY_DIR"
+  cd "$DEPLOY_DIR"
+  git checkout $BRANCH
+  echo "Репозиторий клонирован и ветка установлена."
+fi
+
+if [ -d "$VIRTUALENV_DIR" ];
+then
+  echo "Виртуальное окружение существует"
+else
+  echo "Создаем виртуальное окружение."
+  pyenv virtualenv $PYTHON_VERSION starburger
+  pyenv local checking-bot
+  echo "Виртуальное окружение создано и активировано."
+fi
+
+echo "Установка зависимостей из requirements.txt..."
+pip install --no-input -r requirements.txt
+echo "Зависимости установлены."
+
+echo "Устанавка пакетов Node.js..."
+npm ci --dev --silent
+echo "Пакеты установлены"
+
+echo "Соборка фронтенда..."
+./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
+echo "Фронтенд собран"
+
+echo "Сборка статики..."
+python3 manage.py collectstatic --noinput
+echo "Статика собрана"
+
+echo "Выполнение миграций..."
+python3 manage.py migrate --noinput
+
+echo "Перезапуск сервиса..."
+systemctl restart star_burger.service
+
+echo "Деплой завешен успешно"
+
+curl https://api.rollbar.com/api/1/deploy/ \
+  -H "Content-Type: application/json" \
+  -H "X-Rollbar-Access-Token: $POST_SERVER_ACCESS_TOKEN" \
+  -d '{
+        "environment": "production",
+        "revision": "$REVISION_HASH",
+        "rollbar_username": "$ROLLBAR_USERNAME",
+        "comment": "Deployed via Bash script"
+      }'

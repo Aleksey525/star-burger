@@ -1,6 +1,7 @@
 # Сайт доставки еды Star Burger
 
 Это сайт сети ресторанов Star Burger. Здесь можно заказать превосходные бургеры с доставкой на дом.
+Ссылка на опубликованный сайт - [Starburger](https://www.star-burg.ru/)
 
 ![скриншот сайта](https://dvmn.org/filer/canonical/1594651635/686/)
 
@@ -39,15 +40,8 @@ python --version
 
 Возможно, вместо команды `python` здесь и в остальных инструкциях этого README придётся использовать `python3`. Зависит это от операционной системы и от того, установлен ли у вас Python старой второй версии.
 
-В каталоге проекта создайте виртуальное окружение:
-```sh
-python -m venv venv
-```
-Активируйте его. На разных операционных системах это делается разными командами:
-
-- Windows: `.\venv\Scripts\activate`
-- MacOS/Linux: `source venv/bin/activate`
-
+Для создания виртуального окружения и выбора версии `Python`, используется библиотека `pyenv`.
+Как установить `pyenv`, создать виртуальное окружение и активировать его - см. [Инструкцию](https://realpython.com/intro-to-pyenv/#installing-pyenv)
 
 Установите зависимости в виртуальное окружение:
 ```sh
@@ -154,6 +148,22 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `YANDEX_API_KEY` — [Api-ключ для Яндекс Геокодера](https://developer.tech.yandex.ru/services)
 - `DATABASE_URL` — URL базы данных `postgres://user:password@host:port/dbname`
+- `ROLLBAR_PROJECT_TOKEN` — Api-ключ проекта на [Rollbar](https://rollbar.com/)
+
+Также в репозитории лежит  bash-скрипт для быстрого обновления кода на сервере. Его нужно отправить на сервер, сделать исполняемым и запустить.
+Перед запуском нужно присвоить значения переменным:
+
+- `REPO_URL` — адрес репозитория на [GitHub](https://www.github.com/)
+- `DEPLOY_DIR` — рабочая директория проекта
+- `BRANCH` — название ветки в репозитории
+- `PYTHON_VERSION` — версия `python`
+- `VIRTUALENV_DIR` — директория с виртуальным окружением
+- `REVISION_HASH` — хеш текущего коммита в Git
+- `ROLLBAR_USERNAME` — имя на [Rollbar](https://rollbar.com/)
+- `POST_SERVER_ACCESS_TOKEN` — Api-ключ проекта на [Rollbar](https://rollbar.com/)
+
+Для мониторинга сайта и для корректного выполнения скрипта для обновления кода нужно зарегистрироваться
+на [Rollbar](https://rollbar.com/), создать проект и получить Api-ключ и учетные данные.
 
 ## Цели проекта
 
