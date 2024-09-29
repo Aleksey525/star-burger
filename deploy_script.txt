@@ -30,7 +30,7 @@ then
 else
   echo "Создаем виртуальное окружение."
   pyenv virtualenv $PYTHON_VERSION starburger
-  pyenv local checking-bot
+  pyenv local starburger
   echo "Виртуальное окружение создано и активировано."
 fi
 
