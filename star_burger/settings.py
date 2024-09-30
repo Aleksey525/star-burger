@@ -16,6 +16,9 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', True)
 YANDEX_API_KEY = env('YANDEX_API_KEY')
 ROLLBAR_PROJECT_TOKEN = env('ROLLBAR_PROJECT_TOKEN', '')
+ROLLBAR_ENVIRONMENT = env('ROLLBAR_ENVIRONMENT', 'development')
+ROLLBAR_ROOT = env('ROLLBAR_ROOT', '')
+BRANCH = env('ROLLBAR_BRANCH', 'master')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
@@ -48,10 +51,9 @@ MIDDLEWARE = [
 
 ROLLBAR = {
     'access_token': ROLLBAR_PROJECT_TOKEN,
-    'environment': 'development' if DEBUG else 'production',
-    'code_version': '1.0',
-    'root': 'opt/star-burger',
-    'patch_debugview': False,
+    'environment': ROLLBAR_ENVIRONMENT,
+    'branch': BRANCH,
+    'root': ROLLBAR_ROOT,
 }
 
 ROOT_URLCONF = 'star_burger.urls'
