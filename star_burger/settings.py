@@ -15,6 +15,7 @@ STATIC_ROOT = '/opt/star-burger/staticfiles/'
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', True)
 YANDEX_API_KEY = env('YANDEX_API_KEY')
+ROLLBAR_PROJECT_TOKEN = env('ROLLBAR_PROJECT_TOKEN', '')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
@@ -46,7 +47,7 @@ MIDDLEWARE = [
 ]
 
 ROLLBAR = {
-    'access_token': env('ROLLBAR_PROJECT_TOKEN'),
+    'access_token': ROLLBAR_PROJECT_TOKEN,
     'environment': 'development' if DEBUG else 'production',
     'code_version': '1.0',
     'root': 'opt/star-burger',
