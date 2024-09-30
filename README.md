@@ -149,6 +149,9 @@ Parcel будет следить за файлами в каталоге `bundle
 - `YANDEX_API_KEY` — [Api-ключ для Яндекс Геокодера](https://developer.tech.yandex.ru/services)
 - `DATABASE_URL` — URL базы данных `postgres://user:password@host:port/dbname`
 - `ROLLBAR_PROJECT_TOKEN` — Api-ключ проекта на [Rollbar](https://rollbar.com/)
+- `ROLLBAR_ENVIRONMENT` — среда в которой работает приложение
+- `ROLLBAR_ROOT` — корневой каталог проекта
+- `BRANCH` — название ветки репозитория
 
 Также в репозитории лежит  bash-скрипт для быстрого обновления кода на сервере. Его нужно отправить на сервер, сделать исполняемым и запустить.
 Перед запуском нужно присвоить значения переменным:
