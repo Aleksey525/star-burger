@@ -1,18 +1,11 @@
 version: '3'
 
-volumes:
-  db_data:
-  static:
-  media:
-  certbot_conf:
-  certbot-www:
-
 services:
   web:
     container_name: star_burger
     build:
       context: ..
-      dockerfile: local_dev_environment/Dockerfile
+      dockerfile: prod_environment/Dockerfile
     volumes:
       - ..:/app
       - static:/app/static
@@ -51,6 +44,15 @@ services:
     env_file:
       - ../.env
 
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email alex_tolchin@mail.ru --agree-tos --non-interactive --expand -d star-burg.ru
+    depends_on:
+      - web
+
   nginx:
     container_name: nginx
     working_dir: /app
@@ -70,13 +72,10 @@ services:
     depends_on:
       - certbot
 
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - certbot_conf:/etc/letsencrypt
-      - certbot-www:/var/www/certbot
-    command: certonly --webroot --webroot-path=/var/www/certbot --email alex_tolchin@mail.ru --agree-tos --non-interactive --expand -d star-burg.ru
-    depends_on:
-      - web
-
+volumes:
+  db_data:
+  static:
+  media:
+  certbot_conf:
+  certbot-www:
 
