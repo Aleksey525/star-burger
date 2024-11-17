@@ -66,8 +66,6 @@ services:
     depends_on:
       - web
 
-
-  services:
     nginx:
       image: nginx:stable-alpine
       volumes:
