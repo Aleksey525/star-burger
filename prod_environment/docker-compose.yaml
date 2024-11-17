@@ -74,7 +74,7 @@ services:
     volumes:
       - certbot_conf:/etc/letsencrypt
       - certbot-www:/var/www/certbot
-    command: certonly --webroot --webroot-path=/var/www/certbot --email your_email@example.com --agree-tos --non-interactive --expand --domains -d your_domain.com
+    command: certonly --webroot --webroot-path=/var/www/certbot --email alex_tolchin@mail.ru --agree-tos --non-interactive --expand --domains -d star-burg.ru
     depends_on:
       - nginx
 
