@@ -68,7 +68,7 @@ services:
     links:
       - web
     depends_on:
-      - web
+      - certbot
 
   certbot:
     image: certbot/certbot
@@ -77,6 +77,6 @@ services:
       - certbot-www:/var/www/certbot
     command: certonly --webroot --webroot-path=/var/www/certbot --email alex_tolchin@mail.ru --agree-tos --non-interactive --expand -d star-burg.ru
     depends_on:
-      - nginx
+      - web
 
 
