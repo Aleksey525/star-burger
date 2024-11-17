@@ -4,6 +4,7 @@ volumes:
   db_data:
   static:
   media:
+  certbot_conf: {}
 
 services:
   web:
