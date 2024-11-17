@@ -58,10 +58,11 @@ services:
     restart: always
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - static:/app/static
       - media:/app/media
-      - ./local_dev_environment/nginx/:/etc/nginx/conf.d
+      - ./prod_environment/nginx/:/etc/nginx/conf.d
       - certbot_conf:/etc/letsencrypt
       - certbot-www:/var/www/certbot
     links:
