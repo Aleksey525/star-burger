@@ -49,10 +49,23 @@ services:
     volumes:
       - certbot_conf:/etc/letsencrypt
       - certbot-www:/var/www/certbot
+    environment:
+      - EMAIL=alex_tolchin@mail.ru
+      - DOMAINS=star-burg.ru
+      - WEBROOT_PATH=/var/www/certbot
     command: [
-      "sh",
-      "-c",
-      "certonly --webroot --webroot-path=/var/www/certbot --email alex_tolchin@mail.ru --agree-tos --non-interactive --expand -d star-burg.ru --verbose"
+      "certonly",
+      "--webroot",
+      "--webroot-path",
+      "${WEBROOT_PATH}",
+      "--email",
+      "${EMAIL}",
+      "--agree-tos",
+      "--non-interactive",
+      "--expand",
+      "-d",
+      "${DOMAINS}",
+      "--verbose"
     ]
     depends_on:
       - web
