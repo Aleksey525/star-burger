@@ -8,7 +8,7 @@ services:
       dockerfile: prod_environment/Dockerfile
     volumes:
       - ..:/app
-      - static:/app/static
+      - static:/app/staticfiles
       - media:/app/media
     env_file:
       - ../.env
@@ -75,9 +75,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - static:/app/static
-      - media:/app/media
-      - ./prod_environment/nginx/:/etc/nginx/conf.d
+      - ../staticfiles:/app/static
+      - ../media:/app/media
+      - ../prod_environment/nginx/:/etc/nginx/conf.d
       - certbot_conf:/etc/letsencrypt
       - certbot-www:/var/www/certbot
     links:
