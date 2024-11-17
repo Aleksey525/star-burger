@@ -66,27 +66,26 @@ services:
     depends_on:
       - web
 
-  nginx:
-    container_name: nginx
-    working_dir: /app
-    image: nginx:stable-alpine
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /staticfiles:/app/static
-      - /media:/app/media
-      - /prod_environment/nginx/:/etc/nginx/conf.d
-      - certbot_conf:/etc/letsencrypt
-      - certbot-www:/var/www/certbot
-    links:
-      - web
 
-volumes:
-  db_data:
-  static:
-  media:
-  certbot_conf:
-  certbot-www:
+  services:
+    nginx:
+      image: nginx:stable-alpine
+      volumes:
+        - ../staticfiles:/app/static
+        - ../media:/app/media
+        - ./nginx/:/etc/nginx/conf.d
+        - certbot_conf:/etc/letsencrypt
+        - certbot-www:/var/www/certbot
+      ports:
+        - "80:80"
+        - "443:443"
+      depends_on:
+        - web
+
+
+  volumes:
+    static:
+    media:
+    certbot_conf:
+    certbot-www:
 
