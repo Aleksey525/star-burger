@@ -4,7 +4,8 @@ volumes:
   db_data:
   static:
   media:
-  certbot_conf: {}
+  certbot_conf:
+  certbot-www:
 
 services:
   web:
@@ -62,6 +63,7 @@ services:
       - media:/app/media
       - ./local_dev_environment/nginx/:/etc/nginx/conf.d
       - certbot_conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
     links:
       - web
     depends_on:
@@ -72,7 +74,6 @@ services:
     volumes:
       - certbot_conf:/etc/letsencrypt
       - certbot-www:/var/www/certbot
-      - ./prod_environment/nginx/:/etc/nginx/conf.d
     command: certonly --webroot --webroot-path=/var/www/certbot --email your_email@example.com --agree-tos --non-interactive --expand --domains -d your_domain.com
     depends_on:
       - nginx
