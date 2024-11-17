@@ -79,6 +79,7 @@ services:
       - "443:443"
 
 volumes:
+  db_data:
   static:
   media:
   certbot_conf:
