@@ -19,6 +19,9 @@ services:
       python manage.py makemigrations &&
       python manage.py migrate &&
       gunicorn -w 3 -b 127.0.0.1:8000 star_burger.wsgi:application"
+    volumes:
+      - ../staticfiles:/app/staticfiles
+      - ../media:/app/media
 
   postgres:
     image: postgres:13.0-alpine
@@ -39,30 +42,6 @@ services:
       - ..:/code
     env_file:
       - ../.env
-
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
-    depends_on:
-      - nginx
-
-  nginx:
-    container_name: nginx
-    image: nginx:stable-alpine
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ../staticfiles:/app/staticfiles
-      - ../media:/app/media
-      - ./nginx/:/etc/nginx/conf.d
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
-    depends_on:
-      - web
 
 volumes:
   db_data:
