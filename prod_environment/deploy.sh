@@ -54,7 +54,7 @@ server {
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
     }
-}" | sudo tee /etc/nginx/sites-available/example.com
+}" | sudo tee /etc/nginx/sites-available/starburger
 sudo nginx -t
 sudo systemctl reload nginx
 
