@@ -33,14 +33,14 @@ if [ -d "$CERT_DIR" ]; then
   fi
 else
   echo "Существующий сертификат SSL не найден. Получение нового..."
-  sudo certbot --nginx -d example.com -d www.example.com --email your_email@example.com --agree-tos --non-interactive --expand
+  sudo certbot --nginx -d star-burg.ru  -d www.star-burg.ru --email alex_tolchin@mail.ru --agree-tos --non-interactive --expand
 fi
 
 echo "Configuring Nginx to use SSL certificates..."
-sudo nano /etc/nginx/sites-available/starburger
-echo "server {
+CONFIG="
+server {
     listen 80;
-    server_name example.com www.example.com;
+    server_name star-burg.ru www.star-burg.ru;
     return 301 https://\$host\$request_uri;
 }
 
@@ -54,7 +54,9 @@ server {
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
     }
-}" | sudo tee /etc/nginx/sites-available/starburger
+}
+"
+echo "$CONFIG" | sudo tee /etc/nginx/sites-available/starburger > /dev/null
 sudo nginx -t
 sudo systemctl reload nginx
 
