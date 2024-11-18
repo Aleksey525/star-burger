@@ -36,6 +36,11 @@ else
   sudo certbot --nginx -d star-burg.ru  -d www.star-burg.ru --email alex_tolchin@mail.ru --agree-tos --non-interactive --expand
 fi
 
+if [ -f "/etc/nginx/sites-enabled/default" ]; then
+  sudo rm /etc/nginx/sites-enabled/default
+  echo "Удален файл конфигурации Nginx по умолчанию."
+fi
+
 echo "Configuring Nginx to use SSL certificates..."
 CONFIG="
 server {
@@ -53,10 +58,21 @@ server {
         proxy_pass http://localhost:8000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
+
     }
-}
-"
-echo "$CONFIG" | sudo tee /etc/nginx/sites-available/starburger > /dev/null
+
+    location /static/ {
+        alias  /opt/star-burger/staticfiles/;
+        expires 15d;
+    }
+
+     location /media/ {
+        alias  /opt/star-burger/media/;
+        expires 7d;
+    }
+}"
+
+echo "$CONFIG" | sudo tee /etc/nginx/sites-enabled/starburger > /dev/null
 sudo nginx -t
 sudo systemctl reload nginx
 
