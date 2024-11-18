@@ -6,10 +6,6 @@ services:
     build:
       context: ..
       dockerfile: prod_environment/Dockerfile
-    volumes:
-      - ..:/app
-      - static:/app/staticfiles
-      - media:/app/media
     env_file:
       - ../.env
     expose:
@@ -47,8 +43,8 @@ services:
   certbot:
     image: certbot/certbot
     volumes:
-      - certbot_conf:/etc/letsencrypt
-      - certbot-www:/var/www/certbot
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     depends_on:
       - nginx
 
@@ -63,15 +59,13 @@ services:
       - ../staticfiles:/app/staticfiles
       - ../media:/app/media
       - ./nginx/:/etc/nginx/conf.d
-      - certbot_conf:/etc/letsencrypt
-      - certbot-www:/var/www/certbot
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     depends_on:
       - web
 
 volumes:
   db_data:
-  static:
-  media:
-  certbot_conf:
-  certbot-www:
+
+
 
