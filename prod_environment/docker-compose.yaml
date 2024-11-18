@@ -6,6 +6,7 @@ services:
     build:
       context: ..
       dockerfile: prod_environment/Dockerfile
+    restart: always
     env_file:
       - ../.env
     expose:

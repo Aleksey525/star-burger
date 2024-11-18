@@ -26,10 +26,10 @@ else
 fi
 
 if ! [ -x "$(command -v crontab)" ]; then
-  echo "Crontab not installed. Installing..."
+  echo "Crontab не установлен. Установка Crontab..."
   sudo apt update
   sudo apt install cron
-  echo "Crontab installed."
+  echo "Crontab успешно установлен."
 fi
 
 CERT_DIR="/etc/letsencrypt/live/$DOMAIN"
