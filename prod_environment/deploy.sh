@@ -1,5 +1,9 @@
 #!/bin/bash
 
+EMAIL="alex_tolchin@mail.ru"
+DOMAIN="star-burg.ru"
+DOMAIN_ALIAS="www.star-burg.ru"
+
 if ! [ -x "$(command -v nginx)" ]; then
   echo "Nginx не установлен. Установка Nginx..."
   sudo apt update
@@ -21,19 +25,26 @@ else
   echo "Certbot уже установлен"
 fi
 
-CERT_DIR="/etc/letsencrypt/live/star-burg.ru"
+if ! [ -x "$(command -v crontab)" ]; then
+  echo "Crontab not installed. Installing..."
+  sudo apt update
+  sudo apt install cron
+  echo "Crontab installed."
+fi
+
+CERT_DIR="/etc/letsencrypt/live/$DOMAIN"
 if [ -d "$CERT_DIR" ]; then
   echo "Existing SSL certificate found at $CERT_DIR."
   read -p "Вы хотите обновить SSL сертификат? (y/n) " UPDATE_CERT
   if [ "$UPDATE_CERT" = "y" ]; then
     echo "Обновление SSL сертификата..."
-    sudo certbot --nginx -d star-burg.ru -d www.star-burg.ru --email alex_tolchin@mail.ru --agree-tos --non-interactive --expand
+    sudo certbot --nginx -d $DOMAIN -d $DOMAIN_ALIAS --email $EMAIL --agree-tos --non-interactive --expand
   else
     echo "Сохранение существующего SSL-сертификата."
   fi
 else
   echo "Существующий сертификат SSL не найден. Получение нового..."
-  sudo certbot --nginx -d star-burg.ru  -d www.star-burg.ru --email alex_tolchin@mail.ru --agree-tos --non-interactive --expand
+  sudo certbot --nginx -d $DOMAIN -d $DOMAIN_ALIAS --email $EMAIL --agree-tos --non-interactive --expand
 fi
 
 if [ -f "/etc/nginx/sites-enabled/default" ]; then
@@ -45,15 +56,15 @@ echo "Настройка Nginx для использования SSL-серти�
 CONFIG="
 server {
     listen 80;
-    server_name star-burg.ru www.star-burg.ru;
+    server_name $DOMAIN $DOMAIN_ALIAS;
     return 301 https://\$host\$request_uri;
 }
 
 server {
     listen 443 ssl;
     server_name star-burg.ru www.star-burg.ru;
-    ssl_certificate /etc/letsencrypt/live/star-burg.ru/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/star-burg.ru/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
     location / {
         proxy_pass http://localhost:8000;
         proxy_set_header Host \$host;
@@ -77,8 +88,8 @@ sudo nginx -t
 sudo systemctl reload nginx
 
 echo "Проверка конфигурации SSL..."
-curl -I https://star-burg.ru
-openssl s_client -connect star-burg.ru:443 -servername star-burg.ru
+curl -I https://$DOMAIN
+openssl s_client -connect $DOMAIN:443 -servername $DOMAIN
 
 echo "Создание и запуск Docker-контейнеров..."
 cd /opt/star-burger/prod_environment
@@ -89,3 +100,8 @@ echo "Развертывание успешно завершено."
 echo "Настройка задания cron для автоматического обновления сертификата..."
 sudo crontab -l | { cat; echo "0 0 */30 * * /usr/bin/certbot renew --quiet"; } | sudo crontab -
 echo "Задание Cron успешно настроено."
+
+echo "Настройка задания cron для автоматической очистки сессий..."
+sudo crontab -l | { cat; echo "0 0 * * 0 docker exec -it star_burger python manage.py clearsessions"; } | sudo crontab -
+echo "Задание Cron успешно настроено."
+
