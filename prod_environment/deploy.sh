@@ -21,7 +21,7 @@ else
   echo "Certbot уже установлен"
 fi
 
-CERT_DIR="/etc/letsencrypt/live/example.com"
+CERT_DIR="/etc/letsencrypt/live/star-burg.ru"
 if [ -d "$CERT_DIR" ]; then
   echo "Existing SSL certificate found at $CERT_DIR."
   read -p "Вы хотите обновить SSL сертификат? (y/n) " UPDATE_CERT
@@ -41,7 +41,7 @@ if [ -f "/etc/nginx/sites-enabled/default" ]; then
   echo "Удален файл конфигурации Nginx по умолчанию."
 fi
 
-echo "Configuring Nginx to use SSL certificates..."
+echo "Настройка Nginx для использования SSL-сертификатов..."
 CONFIG="
 server {
     listen 80;
@@ -85,3 +85,7 @@ cd /opt/star-burger/prod_environment
 docker compose up -d --build
 
 echo "Развертывание успешно завершено."
+
+echo "Настройка задания cron для автоматического обновления сертификата..."
+sudo crontab -l | { cat; echo "0 0 */30 * * /usr/bin/certbot renew --quiet"; } | sudo crontab -
+echo "Задание Cron успешно настроено."
